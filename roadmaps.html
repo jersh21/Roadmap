@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yearly Roadmap</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="A beautiful and dynamic yearly roadmap web application">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 id="year-title" contenteditable="true" spellcheck="false">2026 ROADMAP</h1>
+            <div class="toolbar">
+                <input type="color" id="text-color" class="toolbar-btn color-picker" title="Text Color" value="#4e54c8">
+                <div class="harmony-palette">
+                    <button id="harmony_color01" class="harmony-btn" title="Harmonious Color 1"></button>
+                    <button id="harmony_color02" class="harmony-btn" title="Harmonious Color 2"></button>
+                    <button id="harmony_color03" class="harmony-btn" title="Harmonious Color 3"></button>
+                </div>
+                <select id="font-select" class="toolbar-btn font-picker" title="Font Family">
+                    <option value="" disabled selected>Font</option>
+                    <option value="Inter">Inter</option>
+                    <option value="Pacifico">Pacifico</option>
+                    <option value="Caveat">Caveat</option>
+                    <option value="Dancing Script">Dancing Script</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Courier New">Courier</option>
+                    <option value="Georgia">Georgia</option>
+                </select>
+                <div class="size-palette" style="display:flex; gap:0.2rem;">
+                    <button class="size-btn toolbar-btn active" data-size="3" title="Medium">M</button>
+                    <button class="size-btn toolbar-btn" data-size="5" title="Large">L</button>
+                    <button class="size-btn toolbar-btn" data-size="7" title="Extra Large">XL</button>
+                </div>
+            </div>
+            <button id="theme-toggle" class="theme-btn" title="Toggle Printer Friendly Theme">
+                <svg id="theme-icon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </header>
+
+        <div class="roadmap-wrapper">
+            <svg id="car-svg"></svg>
+            <svg id="road-svg">
+                <!-- Defs for glow gradients -->
+                <defs>
+                    <linearGradient id="road-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#4e54c8" />
+                        <stop offset="100%" stop-color="#8f94fb" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="roadmap" id="roadmap">
+                <!-- month cards-->
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

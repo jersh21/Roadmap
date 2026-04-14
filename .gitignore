@@ -1,4 +1,2 @@
-*
-!ARCHITECTURE.MD
-!.gitignore
-!dummy.py
+*.py
+__pycache__/
