@@ -14,4 +14,4 @@ It uses local storage to save entries and colors.
 It is pure vanilla web language and browser features for longevity.
 
 Made by me jersh21!
-Submit bugs to [EMAIL_ADDRESS]
+Submit bugs to jersh21@gmail.com
