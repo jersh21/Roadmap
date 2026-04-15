@@ -108,7 +108,20 @@ function initRoadmap() {
     });
 
     // Initial draw
-    setTimeout(drawRoad, 100);
+    setTimeout(() => {
+        drawRoad();
+        
+        // If we're later in the year, automatically bring the current month into view
+        const currentMonthIndex = new Date().getMonth();
+        if (currentMonthIndex >= 7) { // August or later
+            setTimeout(() => {
+                const currentMonthCard = document.getElementById(`card-${currentMonthIndex}`);
+                if (currentMonthCard) {
+                    currentMonthCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 250);
+        }
+    }, 100);
 }
 
 function updateThemeIcon(icon, theme) {
@@ -333,6 +346,15 @@ function spawnCar(onComplete) {
             osc.stop(audioCtx.currentTime + 0.5);
         } catch (e) {
             console.log("Audio could not be played");
+        }
+
+        // Remove rotation so explosion and fire gifs are always upright
+        let currentTransform = carG.getAttribute('transform');
+        if (currentTransform) {
+            const translateMatch = currentTransform.match(/translate\([^)]+\)/);
+            if (translateMatch) {
+                carG.setAttribute('transform', translateMatch[0]);
+            }
         }
 
         // Convert the structural group to our locally generated animated GIF
