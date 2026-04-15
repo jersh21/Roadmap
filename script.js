@@ -602,15 +602,48 @@ function updateHarmonyColors(hex) {
     const btn2 = document.getElementById('harmony_color02');
     const btn3 = document.getElementById('harmony_color03');
 
-    if (btn1) btn1.style.backgroundColor = color1;
-    if (btn2) btn2.style.backgroundColor = color2;
-    if (btn3) btn3.style.backgroundColor = color3;
+    if (btn1) { btn1.style.backgroundColor = color1; btn1.dataset.hex = color1; }
+    if (btn2) { btn2.style.backgroundColor = color2; btn2.dataset.hex = color2; }
+    if (btn3) { btn3.style.backgroundColor = color3; btn3.dataset.hex = color3; }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
     const textColor = document.getElementById('text-color');
     const fontSelect = document.getElementById('font-select');
     const harmonyBtns = document.querySelectorAll('.harmony-btn');
+
+    // Auto-close color pickers if mouse strays too far
+    document.addEventListener('mousemove', (e) => {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.tagName === 'INPUT' && activeEl.type === 'color') {
+            const rect = activeEl.getBoundingClientRect();
+            // Provide a generous 350px safe-zone around the button
+            const distX = Math.max(0, rect.left - e.clientX, e.clientX - rect.right);
+            const distY = Math.max(0, rect.top - e.clientY, e.clientY - rect.bottom);
+            
+            if (distX > 350 || distY > 350) {
+                // Modern browsers ignore blur() on color pickers, so we force-close it 
+                // by momentarily changing its input type.
+                const tempVal = activeEl.value;
+                activeEl.type = 'text';
+                activeEl.type = 'color';
+                activeEl.value = tempVal;
+                activeEl.blur(); 
+            }
+        }
+    }, { capture: true });
+
+    // Close picker automatically if the user scrolls the page
+    window.addEventListener('scroll', () => {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.tagName === 'INPUT' && activeEl.type === 'color') {
+            const tempVal = activeEl.value;
+            activeEl.type = 'text';
+            activeEl.type = 'color';
+            activeEl.value = tempVal;
+            activeEl.blur();
+        }
+    }, { capture: true, passive: true });
 
     if (textColor) {
         const savedColor = localStorage.getItem('roadmap_color');
@@ -662,8 +695,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     harmonyBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            if (btn.style.backgroundColor) {
-                applyFormat('foreColor', btn.style.backgroundColor, true);
+            if (btn.dataset.hex) {
+                applyFormat('foreColor', btn.dataset.hex, true);
             }
         });
     });
