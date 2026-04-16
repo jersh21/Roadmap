@@ -1,6 +1,6 @@
 # Roadmap
-![alt text](image.png)
-![alt text](image-1.png)
+![alt text](screenshot00.png)
+![alt text](screenshot01.png)
 A beautifully interactive yearly roadmap and journaling web app.
 Easily change the title, year, month colors, and the entries in multiple ways.
 
