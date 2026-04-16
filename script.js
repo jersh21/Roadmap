@@ -17,6 +17,27 @@ function initRoadmap() {
     const roadmapEl = document.getElementById('roadmap');
     roadmapEl.innerHTML = '';
 
+    // Load saved year title
+    const yearTitle = document.getElementById('year-title');
+    const savedYear = localStorage.getItem('roadmap-year');
+    if (savedYear) {
+        yearTitle.innerText = savedYear;
+    }
+
+    let year = new Date().getFullYear();
+    const match = yearTitle.innerText.match(/\d{4}/);
+    if (match) year = parseInt(match[0]);
+
+    let holidays = [];
+    if (typeof HolidayCalculator !== 'undefined') {
+        const hc = new HolidayCalculator(year);
+        const region = localStorage.getItem('roadmap-holiday-region') || 'US';
+        holidays = hc.getHolidays(region);
+    }
+    const today = new Date();
+    // Use the actual current date against the evaluated year for "today" highlighting
+    const isCurrentYear = year === today.getFullYear();
+
     monthData.forEach((data, index) => {
         const monthDiv = document.createElement('div');
         monthDiv.className = 'month';
@@ -25,11 +46,28 @@ function initRoadmap() {
         const savedCardColor = localStorage.getItem(`roadmap-card-color-${index}`);
         const cardColor = savedCardColor ? savedCardColor : data.color;
 
+        const monthHolidays = holidays.filter(h => h.month === index);
+        let holidaysHTML = '';
+        monthHolidays.forEach(h => {
+            const isToday = isCurrentYear && h.month === today.getMonth() && h.day === today.getDate();
+            const isPassed = year < today.getFullYear() || (isCurrentYear && (h.month < today.getMonth() || (h.month === today.getMonth() && h.day < today.getDate())));
+            
+            const initial = h.name.charAt(0);
+            let classes = 'holiday-letter';
+            if (isToday) classes += ' holiday-today';
+            else if (isPassed) classes += ' holiday-passed';
+            
+            holidaysHTML += `<span class="${classes}" title="${h.name} (${h.dateString})">${initial}</span>`;
+        });
+
         monthDiv.innerHTML = `
             <div class="card" id="card-${index}" style="--pin-color: ${cardColor}">
                 <div class="month-header">
                     <div class="month-name" id="month-name-${index}">${data.name}</div>
-                    <input type="color" class="month-color-picker" id="month-color-${index}" value="${cardColor}" title="Change Month Color">
+                    <div class="month-controls">
+                        <div class="holidays-wrap">${holidaysHTML}</div>
+                        <input type="color" class="month-color-picker" id="month-color-${index}" value="${cardColor}" title="Change Month Color">
+                    </div>
                 </div>
                 <div class="goals" contenteditable="true" spellcheck="false" data-placeholder="${data.placeholder}" id="goals-${index}"></div>
             </div>
@@ -75,36 +113,6 @@ function initRoadmap() {
             localStorage.setItem(`roadmap-goal-${index}`, e.target.innerHTML);
             requestAnimationFrame(drawRoad);
         });
-    });
-
-    // Load saved year title
-    const yearTitle = document.getElementById('year-title');
-    const savedYear = localStorage.getItem('roadmap-year');
-    if (savedYear) {
-        yearTitle.innerText = savedYear;
-    }
-
-    // Save year title on input
-    yearTitle.addEventListener('input', (e) => {
-        localStorage.setItem('roadmap-year', e.target.innerText);
-        requestAnimationFrame(drawRoad);
-    });
-
-    // Theme setup
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
-
-    const savedTheme = localStorage.getItem('roadmap-theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
-        updateThemeIcon(themeIcon, 'light');
-    }
-
-    themeToggleBtn.addEventListener('click', () => {
-        const isLight = document.body.classList.toggle('light-theme');
-        localStorage.setItem('roadmap-theme', isLight ? 'light' : 'dark');
-        updateThemeIcon(themeIcon, isLight ? 'light' : 'dark');
-        requestAnimationFrame(drawRoad);
     });
 
     // Initial draw
@@ -272,8 +280,8 @@ function spawnCar(onComplete) {
     car.setAttribute('y', '-6');
     car.setAttribute('rx', '4');
 
-    // 15% chance to roll a grayscale car (white, silver, grey)
-    if (Math.random() < 0.15) {
+    // 35% chance to roll a grayscale car (white, silver, grey)
+    if (Math.random() < 0.35) {
         const lightness = 30 + Math.floor(Math.random() * 70); // 30% to 100% lightness
         car.setAttribute('fill', `hsl(0, 0%, ${lightness}%)`);
     } else {
@@ -608,6 +616,147 @@ function updateHarmonyColors(hex) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    // Save year title on input
+    const yearTitle = document.getElementById('year-title');
+    if (yearTitle) {
+        yearTitle.addEventListener('input', (e) => {
+            localStorage.setItem('roadmap-year', e.target.innerText);
+            requestAnimationFrame(drawRoad);
+        });
+    }
+
+    // Year handling moved to top of initRoadmap
+    
+    // Theme setup
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+
+    const savedTheme = localStorage.getItem('roadmap-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeIcon(themeIcon, 'light');
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-theme');
+        localStorage.setItem('roadmap-theme', isLight ? 'light' : 'dark');
+        updateThemeIcon(themeIcon, isLight ? 'light' : 'dark');
+        requestAnimationFrame(drawRoad);
+    });
+
+    // Holiday Dropdown & Modal Logic
+    const holidayToggleBtn = document.getElementById('holiday-toggle');
+    const holidayDropdown = document.getElementById('holiday-dropdown');
+    const visibilityToggle = document.getElementById('holiday-visibility-toggle');
+    const regionSelect = document.getElementById('holiday-region-select');
+    const editCustomBtn = document.getElementById('edit-custom-holidays-btn');
+    
+    if (holidayToggleBtn && holidayDropdown) {
+        holidayToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            holidayDropdown.classList.toggle('show');
+        });
+        
+        holidayDropdown.addEventListener('click', (e) => {
+            e.stopPropagation(); // Keep open when clicking inside
+        });
+
+        document.addEventListener('click', () => {
+            holidayDropdown.classList.remove('show');
+        });
+
+        // Visibility Checkbox
+        const savedHolidaysHidden = localStorage.getItem('roadmap-holidays-hidden');
+        if (savedHolidaysHidden === 'true') {
+            document.body.classList.add('hide-holidays');
+            visibilityToggle.checked = false;
+            holidayToggleBtn.style.opacity = '0.4';
+        }
+
+        visibilityToggle.addEventListener('change', (e) => {
+            const isHidden = !e.target.checked;
+            if (isHidden) {
+                document.body.classList.add('hide-holidays');
+            } else {
+                document.body.classList.remove('hide-holidays');
+            }
+            localStorage.setItem('roadmap-holidays-hidden', isHidden);
+            holidayToggleBtn.style.opacity = isHidden ? '0.4' : '1';
+        });
+
+        // Region Select
+        const savedRegion = localStorage.getItem('roadmap-holiday-region') || 'US';
+        regionSelect.value = savedRegion;
+        editCustomBtn.style.display = savedRegion === 'CUSTOM' ? 'block' : 'none';
+
+        regionSelect.addEventListener('change', (e) => {
+            localStorage.setItem('roadmap-holiday-region', e.target.value);
+            editCustomBtn.style.display = e.target.value === 'CUSTOM' ? 'block' : 'none';
+            initRoadmap(); // Redraw UI immediately reflects regions
+        });
+
+        // Custom Modal
+        const customModal = document.getElementById('custom-holiday-modal');
+        const closeCustomModal = document.getElementById('close-custom-modal');
+        const addCustomBtn = document.getElementById('add-custom-h-btn');
+        const customName = document.getElementById('custom-h-name');
+        const customMonth = document.getElementById('custom-h-month');
+        const customDay = document.getElementById('custom-h-day');
+        const customList = document.getElementById('custom-holiday-list');
+
+        function renderCustomHolidays() {
+            const saved = localStorage.getItem('roadmap-custom-holidays');
+            const holidays = saved ? JSON.parse(saved) : [];
+            customList.innerHTML = '';
+            holidays.forEach((h, idx) => {
+                const item = document.createElement('div');
+                item.className = 'custom-h-item';
+                item.innerHTML = `<span>${h.name} (Mo: ${h.month}, Day: ${h.day})</span> <button class="remove-h-btn" data-idx="${idx}">X</button>`;
+                customList.appendChild(item);
+            });
+            
+            document.querySelectorAll('.remove-h-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.getAttribute('data-idx'));
+                    holidays.splice(idx, 1);
+                    localStorage.setItem('roadmap-custom-holidays', JSON.stringify(holidays));
+                    renderCustomHolidays();
+                    if (regionSelect.value === 'CUSTOM') initRoadmap();
+                });
+            });
+        }
+
+        editCustomBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            renderCustomHolidays();
+            customModal.classList.add('show');
+            holidayDropdown.classList.remove('show'); // close dropdown
+        });
+
+        closeCustomModal.addEventListener('click', () => {
+            customModal.classList.remove('show');
+        });
+
+        addCustomBtn.addEventListener('click', () => {
+            const name = customName.value.trim();
+            const month = parseInt(customMonth.value);
+            const day = parseInt(customDay.value);
+            if (!name || isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
+                alert("Please enter a valid Name, Month (1-12), and Day (1-31).");
+                return;
+            }
+            const saved = localStorage.getItem('roadmap-custom-holidays');
+            const holidays = saved ? JSON.parse(saved) : [];
+            holidays.push({ name, month, day });
+            localStorage.setItem('roadmap-custom-holidays', JSON.stringify(holidays));
+            customName.value = '';
+            customMonth.value = '';
+            customDay.value = '';
+            renderCustomHolidays();
+            if (regionSelect.value === 'CUSTOM') initRoadmap();
+        });
+    }
+
     const textColor = document.getElementById('text-color');
     const fontSelect = document.getElementById('font-select');
     const harmonyBtns = document.querySelectorAll('.harmony-btn');

@@ -199,6 +199,13 @@ body {
     margin-bottom: 1rem;
 }
 
+.month-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
 .month-name {
     font-size: 1.8rem;
     font-weight: 800;
@@ -209,6 +216,53 @@ body {
     cursor: pointer;
     transition: transform 0.2s, opacity 0.2s;
     user-select: none;
+}
+
+.holidays-wrap {
+    display: flex;
+    gap: 0.4rem;
+    align-items: baseline;
+}
+
+.holiday-letter {
+    font-family: 'Caveat', cursive;
+    font-size: 1.6rem;
+    color: var(--text-main);
+    opacity: 0.6;
+    cursor: help;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.holiday-letter:hover {
+    opacity: 1;
+    transform: scale(1.2) translateY(-2px);
+}
+
+@keyframes holidayGlow {
+    0% { text-shadow: 0 0 5px var(--text-main); transform: scale(1.1); }
+    50% { text-shadow: 0 0 15px var(--text-main), 0 0 25px var(--text-main); transform: scale(1.3); }
+    100% { text-shadow: 0 0 5px var(--text-main); transform: scale(1.1); }
+}
+
+.holiday-today {
+    font-size: 2rem;
+    opacity: 1;
+    animation: holidayGlow 2s infinite ease-in-out;
+    color: var(--text-main);
+    font-weight: bold;
+}
+
+.holiday-passed {
+    color: rgb(94, 94, 94);
+    opacity: 0.8;
+}
+
+body.light-theme .holiday-passed {
+    color: rgb(219, 219, 219);
+}
+
+body.hide-holidays .holidays-wrap {
+    display: none !important;
 }
 
 .month-color-picker {
@@ -560,6 +614,57 @@ body.light-theme .pin::after {
 }
 
 
+
+/* Holiday Dropdown and Modal */
+.holiday-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background: rgba(20, 20, 25, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    width: 220px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.holiday-dropdown.show {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+body.light-theme .holiday-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.7); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal {
+    background: rgba(20, 20, 25, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem; border-radius: 12px; width: 400px; max-width: 90%;
+    color: var(--text-main);
+}
+body.light-theme .modal { background: #fdfdfd; border: 1px solid rgba(0,0,0,0.1); }
+.modal input { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: inherit; padding: 0.5rem; border-radius: 4px; box-sizing: border-box; }
+body.light-theme .modal input { border: 1px solid rgba(0,0,0,0.2); }
+.custom-h-item { display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem; padding-bottom:0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+body.light-theme .custom-h-item { border-bottom: 1px solid rgba(0,0,0,0.1); }
+.remove-h-btn { background: #e74c3c; border:none; color:#fff; border-radius:4px; padding:2px 8px; cursor:pointer; }
+.remove-h-btn:hover { background: #c0392b; }
 
 /* Print Specific Rules */
 @media print {
