@@ -509,6 +509,15 @@ document.addEventListener('selectionchange', () => {
                     fontSelect.value = '';
                 }
             }
+            // Sync strikeout state
+            const strikeoutBtn = document.getElementById('strikeout-btn');
+            if (strikeoutBtn) {
+                if (document.queryCommandState('strikeThrough')) {
+                    strikeoutBtn.classList.add('active');
+                } else {
+                    strikeoutBtn.classList.remove('active');
+                }
+            }
         }
     }
 });
@@ -841,6 +850,13 @@ window.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
         });
     });
+
+    const strikeoutBtn = document.getElementById('strikeout-btn');
+    if (strikeoutBtn) {
+        strikeoutBtn.addEventListener('click', () => {
+            applyFormat('strikeThrough', null, true);
+        });
+    }
 
     harmonyBtns.forEach(btn => {
         btn.addEventListener('click', () => {

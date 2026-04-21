@@ -481,6 +481,11 @@ body:not(.light-theme) .goals font[color="#000"] {
     background: rgba(255, 255, 255, 0.2);
 }
 
+.toolbar-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
 .size-btn:not(.active) {
     background: rgba(255, 255, 255, 0.02);
     color: var(--text-muted);
@@ -579,6 +584,11 @@ body.light-theme .toolbar-btn {
 body.light-theme .theme-btn:hover,
 body.light-theme .toolbar-btn:hover {
     background: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .toolbar-btn.active {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.3);
 }
 
 body.light-theme .size-btn:not(.active) {
