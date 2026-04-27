@@ -1,0 +1,26 @@
+{
+  "name": "yearly-roadmap",
+  "version": "1.0.0",
+  "description": "Yearly Roadmap Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . yearly-roadmap --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "build": {
+    "appId": "com.darkt.yearlyroadmap",
+    "productName": "Yearly Roadmap",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "dir"
+    }
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^41.3.0",
+    "electron-packager": "^17.1.2"
+  }
+}
